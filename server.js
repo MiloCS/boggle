@@ -63,7 +63,8 @@ function sampleBoard(numSamples) {
 
 	for (let i=0; i<numSamples; i++) {
 		let randomIndex = Math.floor(Math.random()*bucket.length);
-		board.push(dice[bucket.splice(randomIndex, 1)[0]].charAt(Math.floor(Math.random() * 5)))
+		let dieIdx = Math.floor(Math.random() * 6);
+		board.push(dice[bucket.splice(randomIndex, 1)[0]].charAt(dieIdx))
 	}
 	return board;
 }
@@ -106,19 +107,29 @@ io.on('connection', (socket) => {
   	socket.emit('newgame', rooms.get(room).board)
   })
   socket.on('newgame', () => {
-  	room = users.get(socket.id)
-  	rooms.get(room).board = sampleBoard(25);
+  	room = users.get(socket.id);
+  	if (rooms.has(room)) {
+  		rooms.get(room).board = sampleBoard(25);
+  	}
+  	else {
+  		rooms.set(room, {
+  			board: sampleBoard(25),
+  			users: [socket.id]
+  		})
+  	}
   	io.to(room).emit('newgame', rooms.get(room).board)
   })
   socket.on('disconnect', () => {
-  	room = users.get(socket.id)
-  	users.delete(socket.id)
-  	if (rooms.has(room)) {
-	  	roomUsers = rooms.get(room).users
-	  	idx = roomUsers.indexOf(socket.id)
-	  	roomUsers.splice(idx, 1)
-	  	if (roomUsers.length < 1) {
-	  		rooms.delete(room)
+  	if (users.has(socket.id)) {
+	  	room = users.get(socket.id)
+	  	users.delete(socket.id)
+	  	if (rooms.has(room)) {
+		  	roomUsers = rooms.get(room).users
+		  	idx = roomUsers.indexOf(socket.id)
+		  	roomUsers.splice(idx, 1)
+		  	if (roomUsers.length < 1) {
+		  		rooms.delete(room)
+		  	}
 	  	}
   	}
   })
