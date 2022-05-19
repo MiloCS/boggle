@@ -1,52 +1,13 @@
-const dice = [
-'aaafrs',
-'aaeeee',
-'aafirs',
-'adennn',
-'aeeeem',
-'aeegmu',
-'aegmnn',
-'afirsy',
-'bjkqxz',
-'ccenst',
-'ceiilt',
-'ceilpt',
-'ceipst',
-'ddhnot',
-'dhhlor',
-'dhlnor',
-'dhlnor',
-'eiiitt',
-'emottt',
-'ensssu',
-'fiprsy',
-'gorrvw',
-'iprrry',
-'nootuw',
-'ooottu'
-]
-
 let timerIID;
+let timer;
 
-function sampleBoard(numSamples) {
-	let board = []
-
-	let bucket = []
-
-	for (let i=0; i<numSamples; i++) {
-		bucket.push(i);
-	}
-
-	for (let i=0; i<numSamples; i++) {
-		let randomIndex = Math.floor(Math.random()*bucket.length);
-		board.push(dice[bucket.splice(randomIndex, 1)[0]].charAt(Math.floor(Math.random() * 5)))
-	}
-	return board;
-}
+let socket = io();
+let url = window.location.href.split("/");
+socket.emit('setup', url[url.length - 1]);
 
 function startTimer(duration, display) {
 	clearInterval(timerIID);
-    let timer = duration, minutes, seconds;
+    var timer = duration, minutes, seconds;
     timerIID = setInterval(function () {
         minutes = parseInt(timer / 60, 10);
         seconds = parseInt(timer % 60, 10);
@@ -57,15 +18,24 @@ function startTimer(duration, display) {
         display.textContent = minutes + ":" + seconds;
 
         if (--timer < 0) {
-            timer = duration;
+            timer = 0;
+            endTimer();
         }
     }, 1000);
 }
 
+function endTimer() {
+	clearInterval(timerIID);
+	t = document.getElementsByClassName("timer")[0];
+	t.classList.add("redtimer")
+}
+
 function timerSetup() {
-    var fiveMinutes = 60 * 3,
+	t = document.getElementsByClassName("timer")[0];
+	t.classList.remove("redtimer")
+    var threeMinutes = 60 * 3 - 1,
     display = document.getElementsByClassName('timer')[0];
-    startTimer(fiveMinutes, display);
+    startTimer(threeMinutes, display);
 }
 
 function removeAllChildNodes(parent) {
@@ -86,16 +56,21 @@ function loadBoard(arr) {
 	}
 }
 
-function newGame() {
-	let board = sampleBoard(25);
+function newGame(board) {
+	document.getElementsByClassName("timer")[0].textContent = "03:00"
 	loadBoard(board);
 	timerSetup();
 }
 
-window.onload = function() {
-	newGame();
+function newGameSignal() {
+	socket.emit('newgame');
+}
 
+window.onload = function() {
 	document.getElementsByClassName("newgame")[0].addEventListener("click", function () {
-		newGame();
+		newGameSignal();
+	})
+	socket.on("newgame", function(board) {
+		newGame(board);
 	})
 }

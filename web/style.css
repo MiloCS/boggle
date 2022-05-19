@@ -9,6 +9,8 @@ button {
 }
 
 .timer {
+	padding-right: 4px;
+	padding-left:  4px;
 	display: inline;
 	font-size: 1.5em;
 }
@@ -24,8 +26,8 @@ button {
 	background: #b0d3e8;
 	padding: 10px;
 	display: grid;
-  	width: 30vw;
-  	height: 50vh;
+  	width: 400px;
+  	height: 400px;
   	grid-template-columns: repeat(5, 1fr);
   	/*grid-template-rows: repeat(4, 1fr);*/
   	border-radius: 3%;
@@ -48,4 +50,9 @@ button {
 .start {
 	margin-top: 50px;
 	font-size:  1.5em;
+}
+
+.redtimer {
+	border-radius: 4px;
+	background: #edcccc;
 }
