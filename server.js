@@ -2,7 +2,9 @@ let express = require('express');
 let app = express();
 let http = require('http').createServer(app);
 let https = require('https');
-let io = require('socket.io')(http);
+let io = require('socket.io')(http, {
+    path: (process.env.BASE_PATH || '') + '/socket.io'
+});
 const fs = require('fs');
 
 let nameWords;
@@ -74,21 +76,26 @@ readWords();
 rooms = new Map();
 users = new Map();
 
-app.get('/', (req, res) => {
+const BASE_PATH = process.env.BASE_PATH || '';
+const router = express.Router();
+
+router.get('/', (req, res) => {
 	res.sendFile(__dirname + '/web/start.html')
 })
 
-app.get('/start', (req, res) => {
+router.get('/start', (req, res) => {
 	name = createRoomName();
 	rooms[name] = sampleBoard(25);
-	res.redirect('/' + name)
+	res.redirect(BASE_PATH + '/' + name)
 })
 
-app.use(express.static(__dirname + '/web/'));
+router.use(express.static(__dirname + '/web/'));
 
-app.get('/*', (req, res) => {
+router.get('/:room', (req, res) => {
 	res.sendFile(__dirname + '/web/index.html')
 })
+
+app.use(BASE_PATH || '/', router);
 
 io.on('connection', (socket) => {
   console.log('a user connected');

@@ -1,7 +1,8 @@
 let timerIID;
 let timer;
 
-let socket = io();
+let basePath = window.location.pathname.split('/').slice(0, -1).join('/');
+let socket = io({ path: basePath + '/socket.io' });
 let url = window.location.href.split("/");
 socket.emit('setup', url[url.length - 1]);
 
