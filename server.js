@@ -47,10 +47,11 @@ function createRoomName() {
 function readWords() {
 	fs.readFile('words.txt', 'utf8', (err, data) => {
 	  if (err) {
-	    console.error(err);
+	    console.error("Could not read words.txt, using fallback list.");
+		nameWords = ["apple", "banana", "cherry", "date", "elderberry", "fig", "grape", "honeydew", "kiwi", "lemon", "mango", "nectarine", "orange", "peach", "quince", "raspberry", "strawberry", "tangerine", "watermelon"];
 	    return;
 	  }
-	  nameWords = data.split("\r\n");
+	  nameWords = data.split(/\r?\n/).filter(w => w.trim().length > 0);
 	});
 }
 
